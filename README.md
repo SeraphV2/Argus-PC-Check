@@ -1,161 +1,138 @@
-Argus – PC Integrity & Cheat Check Tool
+Argus
 
-https://img.shields.io/badge/Argus-PC_Integrity_Checker-blue
-https://img.shields.io/badge/License-MIT-green
-https://img.shields.io/badge/Platform-Windows-lightgrey
-https://img.shields.io/badge/PowerShell-5.1+-blue
+PC Integrity & Cheat Check Tool
 
-Argus is a user-consented, audit-safe PC integrity checker for detecting potential cheat artifacts in major games like FiveM/GTA, Call of Duty, Rainbow Six Siege, Valorant, and more. It uses Windows-exposed data only, ensuring safe, non-intrusive auditing.
-📥 Download
-
-Download Argus_PCCheck.ps1 – raw script for PowerShell
-🚀 Features
-Core Scans
-
-    Registry (startup entries, software keys, drivers/services)
-
-    Startup folders & scheduled tasks
-
-    Services & drivers enumeration
-
-    File hashes (SHA256) & digital signatures
-
-    Timeline of suspicious artifacts
-
-    USB history (device ID, serial, first/last connected)
-
-    Event logs filtered for cheat-related keywords
-
-GUI Features
-
-    Dark mode
-
-    Operator & Player fields
-
-    Game-specific buttons + ALL GAMES option
-
-    Progress bar & live scan timer
-
-    ZIP evidence bundle (Desktop)
-
-Safety & Compliance
-
-    Fully consent-based
-
-    Audit-safe; no memory scanning
-
-    Non-intrusive; read-only Windows data
-
-    Complete ZIP evidence bundle for audits
-
-⚙️ Setup Instructions
-1. Clone or Download Script
-bash
-
-git clone https://github.com/SeraphV2/Argus-PCCheck.git
-
-Or download directly: Argus_PCCheck.ps1
-2. Set PowerShell Execution Policy
+A user‑consented, audit‑safe integrity checker that detects potential cheat artifacts in popular games — using only Windows‑exposed data.
+⚡ Quick Start
+Direct Run (One‑Click)
 powershell
 
-Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+irm https://raw.githubusercontent.com/SeraphV2/Argus-PCCheck/main/Argus_PCCheck.ps1 | iex
 
-Or, if running directly from GitHub:
-powershell
+Downloads and runs the GUI immediately.
+Traditional Download
 
-Set-ExecutionPolicy Bypass -Scope CurrentUser
+    Download Argus_PCCheck.ps1
 
-3. Run Locally
-powershell
+    Run in PowerShell:
+    powershell
 
-cd C:\Tools
 .\Argus_PCCheck.ps1
 
-    Fill in Operator and Player fields
-
-    Click the game button or ALL GAMES
-
-    View progress bar and live timer
-
-    ZIP evidence bundle appears on the Desktop
-
-4. Run Directly from GitHub
+✨ What Argus Does
+Feature	Description
+Registry Scan	Startup entries, installed software, drivers
+File Analysis	SHA‑256 hashes + digital signature verification
+USB History	Device IDs, serials, connection timestamps
+Event Logs	Filtered for cheat‑related keywords
+Services & Tasks	Running services + scheduled tasks
+Timeline	Chronological artifact tracking
+GUI Interface	Dark mode, progress bar, live timer
+Evidence Bundle	Auto‑ZIPs all findings to Desktop
+🛠️ Setup & Usage
+1. Execution Policy (One‑Time)
 powershell
 
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/SeraphV2/Argus-PCCheck/main/Argus_PCCheck.ps1" -OutFile "$env:TEMP\Argus_PCCheck.ps1"
-powershell -ExecutionPolicy Bypass -File "$env:TEMP\Argus_PCCheck.ps1"
+# Allow local scripts
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 
-    Downloads the script to TEMP
+2. Run with GUI
+powershell
 
-    Launches GUI automatically
+# After download
+.\Argus_PCCheck.ps1
 
-5. Optional: Desktop Shortcut
+    Enter Operator and Player names
 
-Target:
+    Select a game or ALL GAMES
+
+    Watch real‑time progress
+
+    Find Argus_Evidence_YYYYMMDD.zip on your Desktop
+
+3. Remote Execution
+powershell
+
+# Download + run in temporary location
+$url = "https://raw.githubusercontent.com/SeraphV2/Argus-PCCheck/main/Argus_PCCheck.ps1"
+$temp = "$env:TEMP\Argus.ps1"
+Invoke-WebRequest -Uri $url -OutFile $temp
+powershell -ExecutionPolicy Bypass -File $temp
+
+📊 Output Files
+
+All evidence is packaged into a single ZIP file containing:
 text
 
-powershell.exe -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/SeraphV2/Argus-PCCheck/main/Argus_PCCheck.ps1' -OutFile '$env:TEMP\Argus_PCCheck.ps1'; powershell -ExecutionPolicy Bypass -File '$env:TEMP\Argus_PCCheck.ps1'"
+📁 Argus_Evidence_20241201.zip
+├── 📄 Report.txt          # Full scan report
+├── 📄 Timeline.csv        # Artifact timeline
+├── 📄 FileHashes.csv      # SHA‑256 + signatures
+├── 📄 USBHistory.csv      # USB connection history
+└── 📄 EventLogs.csv       # Filtered Windows events
 
-    One-click GUI launch
+🎯 Supported Games
 
-📦 Output
+    FiveM / Grand Theft Auto V
 
-All outputs are saved in a ZIP evidence bundle on Desktop:
-File	Description
-Report.txt	Complete scan report
-Timeline.csv	Artifact timestamps
-FileHashes.csv	SHA256 & digital signatures
-USBHistory.csv	Connected USB devices
-EventLogs.csv	Filtered system/application/security events
-🛡️ Safety & Usage Notes
-
-    Operator consent is required
-
-    Some scans may require administrator privileges
-
-    Script is read-only; does not modify system
-
-    Only uses Windows-exposed, audit-safe data
-
-    No memory scanning or intrusive operations
-
-🎮 Supported Games
-
-    FiveM / GTA
-
-    Call of Duty
+    Call of Duty series
 
     Rainbow Six Siege
 
     Valorant
 
-    ALL GAMES (high/medium/low-risk keywords)
+    All Games (generic cheat detection)
 
-📌 Changelog
-v1.0 – Initial release
+Detection uses game‑specific signatures + heuristic analysis.
+🔒 Safety & Compliance
 
-    Full GUI
+✅ Consent‑Based – Requires operator approval
+✅ Read‑Only – Never modifies system files
+✅ No Memory Scanning – Audit‑safe Windows APIs only
+✅ Transparent – All findings exportable for review
+⚠️ Admin Recommended – Some scans need elevated rights
+📁 Project Structure
+text
 
-    Registry, Startup, Services/Drivers, USB, Event Logs scans
+Argus-PCCheck/
+├── Argus_PCCheck.ps1      # Main script
+├── README.md              # This file
+└── LICENSE                # MIT License
 
-    Timeline & file hashes
+❓ FAQ
 
-    Progress bar + live timer
+Q: Does Argus modify my system?
+A: No. It only reads Windows‑exposed data.
 
-    ZIP evidence bundle
+Q: Can I run it without admin rights?
+A: Yes, but some scans will be limited.
+
+Q: Where is data saved?
+A: All output goes to a ZIP on your Desktop.
+
+Q: Is this against game ToS?
+A: Argus is for consensual audits only. Check your game's policies.
+📜 Changelog
+v1.0
+
+    Initial public release
+
+    Full GUI with dark mode
+
+    Game‑specific detection profiles
+
+    USB history + event log parsing
+
+    ZIP evidence bundling
 
 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT License – see LICENSE for details.
 ⚠️ Disclaimer
 
-Argus is designed for consensual audits and legitimate integrity checks. Use responsibly and only on systems where you have explicit permission. The authors are not responsible for misuse or damage caused by improper use of this tool.
-🔗 Links
+Use Argus only on systems you own or have explicit permission to audit. The authors are not responsible for misuse or violations of game Terms of Service.
 
-    Report an Issue
+GitHub: https://github.com/SeraphV2/Argus-PCCheck
+Issues: Report a bug or request a feature
 
-    Request a Feature
-
-    Contribute
-
-Made with ❤️ for the gaming community
+Built for competitive integrity. 🛡️
