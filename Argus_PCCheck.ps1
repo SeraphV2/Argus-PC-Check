@@ -1,6 +1,15 @@
+# ==================================
+# Argus - PC Integrity & Cheat Check
+# Updated & Fixed Version
+# Author: SeraphV2
+# ==================================
+
 Add-Type -AssemblyName PresentationFramework
-Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+$OrgName = "Argus"
+$SubTitle = "Integrity && PC Check"
+$FooterText = "Authorized integrity scan - user consent required"
 
 # ---------------- HELPERS ----------------
 $Whitelist = @("nvidia","amd","microsoft","windows","steam","obs","logitech","razer","corsair","epic","battlenet","riot")
@@ -200,25 +209,39 @@ function RunScan($Game,$Keys,$Operator,$Player){
     "Date: $(Get-Date)" | Out-File $OutFile -Append
     "" | Out-File $OutFile -Append
 
-    # --- Progress Form with Timer ---
-    $ProgressForm = New-Object System.Windows.Forms.Form
-    $ProgressForm.Text = "Scanning $Game..."
-    $ProgressForm.Width=400; $ProgressForm.Height=140
-    $ProgressBar = New-Object System.Windows.Forms.ProgressBar
-    $ProgressBar.Width=350; $ProgressBar.Height=25; $ProgressBar.Minimum=0; $ProgressBar.Maximum=100; $ProgressBar.Value=0
-    $ProgressBar.Top=60
-    $Label = New-Object System.Windows.Forms.Label; $Label.Text="Starting scan..."; $Label.Width=350; $Label.Top=30
-    $TimerLabel = New-Object System.Windows.Forms.Label; $TimerLabel.Text="Elapsed Time: 0s"; $TimerLabel.Width=350; $TimerLabel.Top=90
-    $ProgressForm.Controls.Add($ProgressBar); $ProgressForm.Controls.Add($Label); $ProgressForm.Controls.Add($TimerLabel)
-    $ProgressForm.Topmost = $true; $ProgressForm.Show()
+    # --- PROGRESS WINDOW (WPF) ---
+    $ProgressForm = New-Object System.Windows.Window
+    $ProgressForm.Title = "Scanning $Game..."
+    $ProgressForm.Width = 400
+    $ProgressForm.Height = 160
+    $ProgressForm.WindowStartupLocation = "CenterScreen"
 
-    # Timer
-    $timer = New-Object System.Windows.Forms.Timer
-    $timer.Interval = 1000
+    $grid = New-Object System.Windows.Controls.Grid
+    $ProgressForm.Content = $grid
+
+    $Label = New-Object System.Windows.Controls.TextBlock
+    $Label.Text = "Starting scan..."
+    $Label.Margin = "10"
+    $grid.Children.Add($Label)
+
+    $ProgressBar = New-Object System.Windows.Controls.ProgressBar
+    $ProgressBar.Height = 20
+    $ProgressBar.Margin = "10,40,10,0"
+    $ProgressBar.Minimum = 0
+    $ProgressBar.Maximum = 100
+    $grid.Children.Add($ProgressBar)
+
+    $TimerLabel = New-Object System.Windows.Controls.TextBlock
+    $TimerLabel.Margin = "10,70,10,0"
+    $grid.Children.Add($TimerLabel)
+
+    $ProgressForm.Show()
+
+    $timer = New-Object System.Windows.Threading.DispatcherTimer
+    $timer.Interval = [TimeSpan]::FromSeconds(1)
     $timer.Add_Tick({
         $elapsed = (Get-Date) - $StartTime
         $TimerLabel.Text = "Elapsed Time: {0}h {1}m {2}s" -f $elapsed.Hours,$elapsed.Minutes,$elapsed.Seconds
-        $ProgressForm.Refresh()
     })
     $timer.Start()
 
@@ -226,31 +249,30 @@ function RunScan($Game,$Keys,$Operator,$Player){
     $ProgressBar.Value = 20; $Timeline += ScanRegistry $OutFile
     $ProgressBar.Value = 40; $Timeline += ScanStartup $OutFile
     $ProgressBar.Value = 60; $Timeline += ScanServicesAndDrivers $OutFile
-    $ProgressBar.Value = 80; Get-USBHistory $env:TEMP\PC_EVIDENCE_$Time
-    Get-EventLogs $env:TEMP\PC_EVIDENCE_$Time
+
+    $TempFolder="$env:TEMP\PC_EVIDENCE_$Time"
+    New-Item -ItemType Directory -Path $TempFolder -Force | Out-Null
+
+    $ProgressBar.Value = 80
+    Get-USBHistory $TempFolder
+    Get-EventLogs $TempFolder
     $ProgressBar.Value = 100
 
     $timer.Stop()
     $ProgressForm.Close()
 
     # --- FINALIZE REPORT & ZIP ---
-    $TempFolder="$env:TEMP\PC_EVIDENCE_$Time"
-    New-Item -ItemType Directory -Path $TempFolder -Force | Out-Null
-    Copy-Item $OutFile -Destination $TempFolder
     $Timeline | Export-Csv -Path "$TempFolder\Timeline.csv" -NoTypeInformation
-    $FileHashes | Export-Csv -Path "$TempFolder\FileHashes.csv" -NoTypeInformation
-    Get-USBHistory $TempFolder
-    Get-EventLogs $TempFolder
     $ZipFile="$env:USERPROFILE\Desktop\PC_EVIDENCE_${PC}_$Time.zip"
     Compress-Archive -Path "$TempFolder\*" -DestinationPath $ZipFile -Force
     Remove-Item $TempFolder -Recurse -Force
 
-    [System.Windows.Forms.MessageBox]::Show("Scan complete.`nReport saved to Desktop.`nZIP evidence: $ZipFile","Done")
+    [System.Windows.MessageBox]::Show("Scan complete.`nReport saved to Desktop.`nZIP evidence: $ZipFile","Done")
 }
 
 # ---------------- GUI ----------------
 $w = New-Object System.Windows.Window
-$w.Title="Argus – PC Integrity"; $w.Width=520; $w.Height=620; $w.WindowStartupLocation="CenterScreen"; $w.Background="#1E1E1E"
+$w.Title="Argus - PC Integrity"; $w.Width=520; $w.Height=620; $w.WindowStartupLocation="CenterScreen"; $w.Background="#1E1E1E"
 
 $Main = New-Object System.Windows.Controls.DockPanel
 
@@ -258,7 +280,7 @@ $Main = New-Object System.Windows.Controls.DockPanel
 $Header = New-Object System.Windows.Controls.StackPanel; $Header.Orientation="Horizontal"; $Header.Margin="10"
 $TitleStack = New-Object System.Windows.Controls.StackPanel; $TitleStack.Margin="10,0,0,0"
 $TitleText = New-Object System.Windows.Controls.TextBlock; $TitleText.Text="Argus"; $TitleText.FontSize=22; $TitleText.FontWeight="Bold"; $TitleText.Foreground="White"
-$SubText = New-Object System.Windows.Controls.TextBlock; $SubText.Text="Integrity & PC Check"; $SubText.FontSize=14; $SubText.Foreground="LightGray"
+$SubText = New-Object System.Windows.Controls.TextBlock; $SubText.Text="Integrity && PC Check"; $SubText.FontSize=14; $SubText.Foreground="LightGray"
 $TitleStack.AddChild($TitleText); $TitleStack.AddChild($SubText); $Header.AddChild($TitleStack)
 [System.Windows.Controls.DockPanel]::SetDock($Header,"Top"); $Main.AddChild($Header)
 
@@ -288,7 +310,7 @@ Btn "Valorant" @("valorant","vanguard","overlay","trigger")
 Btn "ALL GAMES" ($High+$Medium+$Low)
 
 # Footer
-$Footer = New-Object System.Windows.Controls.TextBlock; $Footer.Text="Authorized integrity scan – user consent required"; $Footer.Margin="10"; $Footer.HorizontalAlignment="Center"; $Footer.Foreground="LightGray"
+$Footer = New-Object System.Windows.Controls.TextBlock; $Footer.Text=$FooterText; $Footer.Margin="10"; $Footer.HorizontalAlignment="Center"; $Footer.Foreground="LightGray"
 [System.Windows.Controls.DockPanel]::SetDock($Footer,"Bottom"); $Main.AddChild($Footer)
 
 $w.Content=$Main
